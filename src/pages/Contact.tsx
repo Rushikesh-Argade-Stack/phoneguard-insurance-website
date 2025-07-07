@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
-import { Phone, Mail, MapPin, MessageCircle, Send } from 'lucide-react';
+import { Phone, Mail, MapPin, MessageCircle, Send, Clock } from 'lucide-react';
 import Button from '../components/UI/Button';
 import Card from '../components/UI/Card';
+import { useContactPageContent } from '../hooks/useContentStack';
 
 const Contact: React.FC = () => {
+  const { contactContent, loading, error } = useContactPageContent({
+    locale: 'en-us',
+    includeReferences: true
+  });
+  console.log("contactContent :=> ", contactContent);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -55,8 +61,60 @@ const Contact: React.FC = () => {
   };
 
   const handleLiveChat = () => {
-    alert('Live chat feature coming soon! For immediate assistance, please call 1-800-GUARD-ME.');
+    if (contactContent?.chat_details?.cta_link?.href) {
+      window.open(contactContent.chat_details.cta_link.href, '_blank');
+    } else {
+      alert('Live chat feature coming soon! For immediate assistance, please call 1-800-GUARD-ME.');
+    }
   };
+
+  const getContactIcon = (type: string) => {
+    switch (type.toLowerCase()) {
+      case 'phone':
+        return <Phone className="h-5 w-5 text-primary-600" />;
+      case 'email':
+        return <Mail className="h-5 w-5 text-primary-600" />;
+      case 'office':
+        return <MapPin className="h-5 w-5 text-primary-600" />;
+      default:
+        return <Phone className="h-5 w-5 text-primary-600" />;
+    }
+  };
+
+  const getContactHref = (type: string, info: string) => {
+    switch (type.toLowerCase()) {
+      case 'phone':
+        return `tel:${info}`;
+      case 'email':
+        return `mailto:${info}`;
+      default:
+        return '#';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading contact information...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error loading contact information: {error}</p>
+          <Button onClick={() => window.location.reload()}>
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -65,11 +123,10 @@ const Contact: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Get in Touch
+            {contactContent?.title || 'Get in Touch'}
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Have questions about our insurance plans or need help with a claim? 
-            We're here to help you every step of the way.
+            {contactContent?.description || 'Have questions about our insurance plans or need help with a claim? We\'re here to help you every step of the way.'}
           </p>
         </div>
 
@@ -78,101 +135,83 @@ const Contact: React.FC = () => {
           {/* Contact Information */}
           <div className="space-y-8">
             <Card>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Contact Information</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                {contactContent?.contact_title || 'Contact Information'}
+              </h2>
               <div className="space-y-6">
-                <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                    <Phone className="h-5 w-5 text-primary-600" />
+                {contactContent?.contact_details?.map((detail: any, index: number) => (
+                  <div key={index} className="flex items-start space-x-4">
+                    <div className="flex-shrink-0 w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                      {getContactIcon(detail.type)}
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">{detail.type}</h3>
+                      {detail.note && (
+                        <p className="text-gray-600">{detail.note}</p>
+                      )}
+                      <a 
+                        href={getContactHref(detail.type, detail.contact_info)}
+                        className="text-primary-600 hover:text-primary-700 font-medium"
+                      >
+                        {detail.contact_info}
+                      </a>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">Phone</h3>
-                    <p className="text-gray-600">Available 24/7 for emergencies</p>
-                    <a 
-                      href="tel:1-800-GUARD-ME" 
-                      className="text-primary-600 hover:text-primary-700 font-medium"
-                    >
-                      1-800-GUARD-ME (1-800-482-7363)
-                    </a>
-                  </div>
-                </div>
-                
-                <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                    <Mail className="h-5 w-5 text-primary-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">Email</h3>
-                    <p className="text-gray-600">Response within 24 hours</p>
-                    <a 
-                      href="mailto:support@phoneguard.com" 
-                      className="text-primary-600 hover:text-primary-700 font-medium"
-                    >
-                      support@phoneguard.com
-                    </a>
-                  </div>
-                </div>
-                
-                <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                    <MapPin className="h-5 w-5 text-primary-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">Office</h3>
-                    <p className="text-gray-600">
-                      123 Insurance Plaza<br />
-                      New York, NY 10001
-                    </p>
-                  </div>
-                </div>
+                ))}
               </div>
             </Card>
 
             {/* Live Chat */}
-            <Card>
-              <div className="text-center">
-                <div className="flex justify-center mb-4">
-                  <div className="w-16 h-16 bg-accent-100 rounded-full flex items-center justify-center">
-                    <MessageCircle className="h-8 w-8 text-accent-600" />
+            {contactContent?.chat_details && (
+              <Card>
+                <div className="text-center">
+                  <div className="flex justify-center mb-4">
+                    <div className="w-16 h-16 bg-accent-100 rounded-full flex items-center justify-center">
+                      <MessageCircle className="h-8 w-8 text-accent-600" />
+                    </div>
                   </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    {contactContent.chat_details.title}
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    {contactContent.chat_details.description}
+                  </p>
+                  <Button 
+                    onClick={handleLiveChat}
+                    variant="outline"
+                    className="border-accent-500 text-accent-600 hover:bg-accent-50"
+                  >
+                    {contactContent.chat_details.cta_title}
+                  </Button>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Live Chat Support</h3>
-                <p className="text-gray-600 mb-4">
-                  Get instant help from our support team
-                </p>
-                <Button 
-                  onClick={handleLiveChat}
-                  variant="outline"
-                  className="border-accent-500 text-accent-600 hover:bg-accent-50"
-                >
-                  Start Live Chat
-                </Button>
-              </div>
-            </Card>
+              </Card>
+            )}
 
             {/* Business Hours */}
-            <Card>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Business Hours</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Monday - Friday</span>
-                  <span className="text-gray-900">8:00 AM - 8:00 PM EST</span>
+            {contactContent?.bussiness_hours && (
+              <Card>
+                <div className="flex items-center mb-4">
+                  <Clock className="h-5 w-5 text-primary-600 mr-2" />
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    {contactContent.bussiness_hours.title}
+                  </h3>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Saturday</span>
-                  <span className="text-gray-900">9:00 AM - 5:00 PM EST</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Sunday</span>
-                  <span className="text-gray-900">10:00 AM - 4:00 PM EST</span>
-                </div>
-                <div className="border-t pt-2 mt-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Emergency Claims</span>
-                    <span className="text-primary-600 font-medium">24/7 Available</span>
+                <div className="space-y-2">
+                  {contactContent.bussiness_hours.day_and_hours?.map((schedule: any, index: number) => (
+                    <div key={index} className="flex justify-between">
+                      <span className="text-gray-600">{schedule.day}</span>
+                      <span className="text-gray-900">{schedule.hours}</span>
+                    </div>
+                  ))}
+                  <div className="border-t pt-2 mt-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Emergency Claims</span>
+                      <span className="text-primary-600 font-medium">24/7 Available</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Card>
+              </Card>
+            )}
           </div>
 
           {/* Contact Form */}
@@ -265,4 +304,4 @@ const Contact: React.FC = () => {
   );
 };
 
-export default Contact;
+export default Contact; 

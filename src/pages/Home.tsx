@@ -1,54 +1,58 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, Zap, Users, Award, ArrowRight, CheckCircle } from 'lucide-react';
+import { Shield, Zap, Users, Award, ArrowRight, CheckCircle, Phone, Clock, DollarSign } from 'lucide-react';
 import Button from '../components/UI/Button';
 import Card from '../components/UI/Card';
-import { testimonials } from '../data/planData';
-import { useBenefits, useTestimonials } from '../hooks/useContentStack';
+import { useHomePageContent } from '../hooks/useContentStack';
 
 const Home: React.FC = () => {
-  const { testimonials: testimonialsCS, loading: testimonialsLoading } = useTestimonials();
-  const { benefits: benefitsCS, loading: benefitsLoading } = useBenefits();
-  console.log("testimonialsCS :=> ", testimonialsCS);
-  console.log("benefitsCS :=> ", benefitsCS);
+  const { homeContent, loading, error } = useHomePageContent({
+    locale: 'en-us',
+    includeReferences: true
+  });
 
-  const benefits = [
-    {
-      icon: Shield,
-      title: 'Theft Protection',
-      description: 'Complete coverage against theft and unauthorized use of your device.'
-    },
-    {
-      icon: Zap,
-      title: 'Instant Repair Coverage',
-      description: 'Quick repairs for cracked screens, water damage, and hardware issues.'
-    },
-    {
-      icon: Users,
-      title: 'Replacement Guarantee',
-      description: 'Get a replacement device if yours cannot be repaired.'
-    },
-    {
-      icon: Award,
-      title: 'Easy Upgrades',
-      description: 'Upgrade protection when you get a new device.'
-    }
-  ];
+  console.log("homeContent :=> ", homeContent);
 
-  // Update benefitsCS with icons from benefits array
-  const updatedBenefitsCS = benefitsCS?.map((benefit: any, index: number) => ({
-    ...benefit,
-    icon: benefits[index]?.icon
-  })) || [];
+  const getIconComponent = (iconName: string) => {
+    const iconMap: { [key: string]: React.ComponentType<any> } = {
+      Shield,
+      Phone,
+      Clock,
+      DollarSign,
+      Users,
+      Award,
+      Zap
+    };
+    return iconMap[iconName] || Shield;
+  };
 
-  const features = [
-    'No hidden fees or surprise charges',
-    '24/7 customer support',
-    'Fast claim processing',
-    'Nationwide coverage',
-    'Multiple payment options',
-    'Cancel anytime'
-  ];
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading page content...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error loading page content: {error}</p>
+          <Button onClick={() => window.location.reload()}>
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const benefits = homeContent?.features_section?.benefits_reference || [];
+  const testimonials = homeContent?.testimonials_section?.testimonials_reference || [];
+  const services = homeContent?.service_section?.services || [];
 
   return (
     <div className="min-h-screen">
@@ -58,23 +62,24 @@ const Home: React.FC = () => {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
-              Protect Your Phone,
-              <span className="text-accent-300"> Protect Your Peace of Mind</span>
+              {homeContent?.hero_banner?.banner_title || 'Protect Your Phone, '}
+              <span className="text-accent-300">
+                {homeContent?.hero_banner?.banner_title_2 || 'Protect Your Peace of Mind'}
+              </span>
             </h1>
             <p className="text-xl md:text-2xl mb-8 opacity-90 max-w-3xl mx-auto animate-slide-up">
-              From accidental damage to theft, get comprehensive coverage tailored to your device. 
-              Join thousands of satisfied customers who trust PhoneGuard.
+              {homeContent?.hero_banner?.banner_description || 'From accidental damage to theft, get comprehensive coverage tailored to your device. Join thousands of satisfied customers who trust PhoneGuard.'}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up">
-              <Link to="/plans">
+              <Link to={homeContent?.hero_banner?.call_to_action_1?.href || '/plans'}>
                 <Button size="lg" className="bg-accent-500 hover:bg-accent-600 text-white">
-                  Get Free Quote
+                  {homeContent?.hero_banner?.call_to_action_1?.title || 'Get Free Quote'}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Link to="/about">
+              <Link to={homeContent?.hero_banner?.call_to_action_2?.href || '/about'}>
                 <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-primary-600">
-                  Learn More
+                  {homeContent?.hero_banner?.call_to_action_2?.title || 'Learn More'}
                 </Button>
               </Link>
             </div>
@@ -88,25 +93,28 @@ const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose PhoneGuard?
+              {homeContent?.features_section?.features_title || 'Why Choose PhoneGuard?'}
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              We provide comprehensive smartphone protection with unmatched service and support.
+              {homeContent?.features_section?.features_description || 'We provide comprehensive smartphone protection with unmatched service and support.'}
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {updatedBenefitsCS.map((benefit, index) => (
-              <Card key={index} hover className="text-center">
-                <div className="flex justify-center mb-4">
-                  <div className="p-3 bg-primary-100 rounded-full">
-                    <benefit.icon className="h-8 w-8 text-primary-600" />
+            {benefits.map((benefit: any, index: number) => {
+              const IconComponent = getIconComponent(benefit.icon);
+              return (
+                <Card key={benefit.uid || index} hover className="text-center">
+                  <div className="flex justify-center mb-4">
+                    <div className="p-3 bg-primary-100 rounded-full">
+                      <IconComponent className="h-8 w-8 text-primary-600" />
+                    </div>
                   </div>
-                </div>
-                <h3 className="text-xl font-semibold mb-2">{benefit.title}</h3>
-                <p className="text-gray-600">{benefit.description}</p>
-              </Card>
-            ))}
+                  <h3 className="text-xl font-semibold mb-2">{benefit.title}</h3>
+                  <p className="text-gray-600">{benefit.description}</p>
+                </Card>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -117,17 +125,16 @@ const Home: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                Insurance Made Simple
+                {homeContent?.service_section?.title || 'Insurance Made Simple'}
               </h2>
               <p className="text-xl text-gray-600 mb-8">
-                We believe smartphone insurance should be straightforward, affordable, and reliable. 
-                That's why we've built our service around transparency and customer satisfaction.
+                {homeContent?.service_section?.description || 'We believe smartphone insurance should be straightforward, affordable, and reliable. That\'s why we\'ve built our service around transparency and customer satisfaction.'}
               </p>
               <div className="space-y-4">
-                {features.map((feature, index) => (
+                {services.map((service: string, index: number) => (
                   <div key={index} className="flex items-center space-x-3">
                     <CheckCircle className="h-5 w-5 text-primary-500 flex-shrink-0" />
-                    <span className="text-gray-700">{feature}</span>
+                    <span className="text-gray-700">{service}</span>
                   </div>
                 ))}
               </div>
@@ -157,32 +164,38 @@ const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              What Our Customers Say
+              {homeContent?.testimonials_section?.title || 'What Our Customers Say'}
             </h2>
             <p className="text-xl text-gray-600">
-              Join thousands of satisfied customers who trust PhoneGuard with their devices.
+              {homeContent?.testimonials_section?.description || 'Join thousands of satisfied customers who trust PhoneGuard with their devices.'}
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {testimonialsCS.map((testimonial, index) => (
-              <Card key={index} className="text-center">
+            {testimonials.map((testimonial: any, index: number) => (
+              <Card key={testimonial.uid || index} className="text-center">
                 <div className="flex justify-center mb-4">
                   <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
                     <span className="text-primary-600 font-semibold text-lg">
-                      {/* {testimonial.split(' - ')[1]?.charAt(0) || 'A'} */}
-                      {testimonial.author_avatar || 'A'}
+                      {testimonial.author_name?.charAt(0) || 'A'}
                     </span>
                   </div>
                 </div>
                 <blockquote className="text-gray-700 italic mb-4">
-                  {/* {testimonial.split(' - ')[0]} */}
                   {testimonial.content}
                 </blockquote>
                 <cite className="text-primary-600 font-semibold">
-                  {/* {testimonial.split(' - ')[1]} */}
                   {testimonial.author_name}
                 </cite>
+                {testimonial.rating && (
+                  <div className="flex justify-center mt-2">
+                    {[...Array(5)].map((_, i) => (
+                      <span key={i} className={`text-sm ${i < testimonial.rating ? 'text-yellow-400' : 'text-gray-300'}`}>
+                        ★
+                      </span>
+                    ))}
+                  </div>
+                )}
               </Card>
             ))}
           </div>
@@ -193,14 +206,14 @@ const Home: React.FC = () => {
       <section className="py-20 bg-primary-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Ready to Protect Your Phone?
+            {homeContent?.cta_section?.title || 'Ready to Protect Your Phone?'}
           </h2>
           <p className="text-xl mb-8 opacity-90">
-            Get started with a free quote and see how affordable peace of mind can be.
+            {homeContent?.cta_section?.description || 'Get started with a free quote and see how affordable peace of mind can be.'}
           </p>
-          <Link to="/plans">
-            <Button size="lg" className="bg-accent-500 hover:bg-accent-600">
-              Get Your Free Quote
+          <Link to={homeContent?.cta_section?.cta_link?.href || '/plans'}>
+            <Button size="lg" className="bg-accent-500 hover:bg-accent-600 text-white">
+              {homeContent?.cta_section?.cta_link?.title || 'Get Your Free Quote'}
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
