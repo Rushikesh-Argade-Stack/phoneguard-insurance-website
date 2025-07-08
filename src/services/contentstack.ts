@@ -505,8 +505,8 @@ export const submitContactForm = async (formData: {
             {
                 method: 'POST',
                 headers: {
-                    'api_key': import.meta.env.VITE_CONTENTSTACK_API_KEY || 'bltbb5a50df2250ecc2',
-                    'authorization': import.meta.env.VITE_CONTENTSTACK_MANAGEMENT_TOKEN || 'cs8085411f949a68b4c73fa7d1',
+                    'api_key': import.meta.env.VITE_CONTENTSTACK_API_KEY,
+                    'authorization': import.meta.env.VITE_CONTENTSTACK_MANAGEMENT_TOKEN,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
