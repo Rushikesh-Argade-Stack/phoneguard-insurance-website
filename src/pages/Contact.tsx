@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Phone, Mail, MapPin, MessageCircle, Send, Clock } from 'lucide-react';
+import { Phone, Mail, MapPin, MessageCircle, Send, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import Button from '../components/UI/Button';
 import Card from '../components/UI/Card';
 import { useContactPageContent } from '../hooks/useContentStack';
+import { submitContactForm } from '../services/contentstack';
 
 const Contact: React.FC = () => {
   const { contactContent, loading, error } = useContactPageContent({
@@ -17,6 +18,8 @@ const Contact: React.FC = () => {
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [submitMessage, setSubmitMessage] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -24,6 +27,11 @@ const Contact: React.FC = () => {
       ...prev,
       [name]: value
     }));
+    // Clear submit status when user starts typing again
+    if (submitStatus !== 'idle') {
+      setSubmitStatus('idle');
+      setSubmitMessage('');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,33 +39,43 @@ const Contact: React.FC = () => {
     
     // Basic validation
     if (!formData.name || !formData.email || !formData.subject || !formData.message) {
-      alert('Please fill in all required fields.');
+      setSubmitStatus('error');
+      setSubmitMessage('Please fill in all required fields.');
       return;
     }
     
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      alert('Please enter a valid email address.');
+      setSubmitStatus('error');
+      setSubmitMessage('Please enter a valid email address.');
       return;
     }
 
     setIsSubmitting(true);
+    setSubmitStatus('idle');
+    setSubmitMessage('');
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    alert('Message sent successfully! We\'ll get back to you within 24 hours.');
-    
-    // Reset form
-    setFormData({
-      name: '',
-      email: '',
-      subject: '',
-      message: ''
-    });
-    
-    setIsSubmitting(false);
+    try {
+      await submitContactForm(formData);
+      
+      setSubmitStatus('success');
+      setSubmitMessage('Message sent successfully! We\'ll get back to you within 24 hours.');
+      
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+      });
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setSubmitStatus('error');
+      setSubmitMessage('Sorry, there was an error sending your message. Please try again or contact us directly.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleLiveChat = () => {
@@ -287,6 +305,26 @@ const Contact: React.FC = () => {
                   placeholder="Enter your message"
                 />
               </div>
+
+              {/* Status Message */}
+              {submitStatus !== 'idle' && (
+                <div className={`p-4 rounded-md flex items-center space-x-2 ${
+                  submitStatus === 'success' 
+                    ? 'bg-green-50 border border-green-200' 
+                    : 'bg-red-50 border border-red-200'
+                }`}>
+                  {submitStatus === 'success' ? (
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                  ) : (
+                    <AlertCircle className="h-5 w-5 text-red-600" />
+                  )}
+                  <span className={`text-sm font-medium ${
+                    submitStatus === 'success' ? 'text-green-700' : 'text-red-700'
+                  }`}>
+                    {submitMessage}
+                  </span>
+                </div>
+              )}
 
               <Button 
                 type="submit" 

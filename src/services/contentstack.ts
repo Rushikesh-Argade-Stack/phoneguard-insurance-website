@@ -491,3 +491,44 @@ const getMockData = (contentType: string) => {
             return [];
     }
 };
+
+// Contact form submission service
+export const submitContactForm = async (formData: {
+    name: string;
+    email: string;
+    subject: string;
+    message: string;
+}) => {
+    try {
+        const response = await fetch(
+            "https://api.contentstack.io/v3/content_types/contact_submissions/entries",
+            {
+                method: 'POST',
+                headers: {
+                    'api_key': import.meta.env.VITE_CONTENTSTACK_API_KEY || 'bltbb5a50df2250ecc2',
+                    'authorization': import.meta.env.VITE_CONTENTSTACK_MANAGEMENT_TOKEN || 'cs8085411f949a68b4c73fa7d1',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    entry: {
+                        name: formData.name,
+                        email: formData.email,
+                        subject: formData.subject,
+                        message: formData.message,
+                        submitted_at: new Date().toISOString()
+                    }
+                })
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error submitting contact form:', error);
+        throw error;
+    }
+};
