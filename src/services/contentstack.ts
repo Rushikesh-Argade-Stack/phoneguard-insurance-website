@@ -511,6 +511,7 @@ export const submitContactForm = async (formData: {
                 },
                 body: JSON.stringify({
                     entry: {
+                        title: `Contact Submission - ${formData.name} - ${Date.now()}`,
                         name: formData.name,
                         email: formData.email,
                         subject: formData.subject,
