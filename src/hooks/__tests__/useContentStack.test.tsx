@@ -6,8 +6,6 @@ import {
   useHeroContent, 
   useBenefits,
   useContactPageContent,
-  useAboutPageContent,
-  useHomePageContent,
   useSearchContent,
   usePaginatedContent
 } from '../useContentStack'

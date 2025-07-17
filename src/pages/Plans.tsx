@@ -70,10 +70,9 @@ const Plans: React.FC = () => {
     }
   };
 
-  const PlanCard = ({ plan, isRecommended = false, index = 0 }: { 
+  const PlanCard = ({ plan, isRecommended = false }: { 
     plan: InsurancePlan; 
     isRecommended?: boolean; 
-    index?: number; 
   }) => (
     <Card 
       key={plan.id} 
@@ -169,8 +168,8 @@ const Plans: React.FC = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {recommendedPlans.map((plan, index) => (
-              <PlanCard key={plan.id} plan={plan} isRecommended={true} index={index} />
+            {recommendedPlans.map((plan) => (
+                              <PlanCard key={plan.id} plan={plan} isRecommended={true} />
             ))}
           </div>
           
@@ -288,8 +287,8 @@ const Plans: React.FC = () => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredPlans.map((plan, index) => (
-                <PlanCard key={plan.id} plan={plan} index={index} />
+                              {filteredPlans.map((plan) => (
+                <PlanCard key={plan.id} plan={plan} />
               ))}
             </div>
           </div>

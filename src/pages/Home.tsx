@@ -11,8 +11,6 @@ const Home: React.FC = () => {
     includeReferences: true
   });
 
-  console.log("homeContent :=> ", homeContent);
-
   const getIconComponent = (iconName: string) => {
     const iconMap: { [key: string]: React.ComponentType<any> } = {
       Shield,

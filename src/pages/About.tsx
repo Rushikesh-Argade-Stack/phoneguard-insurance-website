@@ -9,8 +9,6 @@ const About: React.FC = () => {
     locale: 'en-us',
     includeValues: true
   });
-  console.log("aboutContent :=> ", aboutContent);
-  console.log("aboutContent?.values_references :=> ", aboutContent?.values_references);
 
   const getValueIcon = (iconName: string) => {
     const iconMap: { [key: string]: React.ComponentType<any> } = {

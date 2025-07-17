@@ -243,7 +243,7 @@ describe('Select Component', () => {
 
   describe('Icon Styling', () => {
     it('positions chevron icon correctly', () => {
-      const { container } = render(<Select {...defaultProps} />)
+      render(<Select {...defaultProps} />)
       
       const icon = screen.getByTestId('chevron-down-icon')
       expect(icon).toBeInTheDocument()
@@ -253,7 +253,7 @@ describe('Select Component', () => {
     })
 
     it('icon is not interactive', () => {
-      const { container } = render(<Select {...defaultProps} />)
+      render(<Select {...defaultProps} />)
       
       const iconElement = screen.getByTestId('chevron-down-icon')
       // The icon should have pointer-events-none class to not interfere with select

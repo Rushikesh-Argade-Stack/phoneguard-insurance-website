@@ -291,7 +291,6 @@ describe('Button Component', () => {
   describe('Icon Integration', () => {
     it('positions icon correctly with text', () => {
       render(<Button icon={Shield}>With Icon</Button>)
-      const button = screen.getByRole('button')
       
       // Icon should be rendered as the Shield mock
       expect(screen.getByTestId('shield-icon')).toBeInTheDocument()

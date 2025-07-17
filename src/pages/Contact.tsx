@@ -10,7 +10,6 @@ const Contact: React.FC = () => {
     locale: 'en-us',
     includeReferences: true
   });
-  console.log("contactContent :=> ", contactContent);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
