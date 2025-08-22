@@ -15,7 +15,7 @@
     "test:watch": "vitest --watch"
   },
   "dependencies": {
-    "contentstack": "^3.25.3",
+    "contentstack": "^3.26.0",
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
